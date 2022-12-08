@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    include: test, urls
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:63673/test
+    username: test
+    password: test
+  jpa:
+    open-in-view: false
+
+app:
+  allow-quartz: false
+  phone:
+    mask: ${PHONE_NUMBER_MASK:^(\d{1,3}( )?)?((\(\d{3}\))|\d{3})[- .]?\d{3}[- .]?\d{4}$}
+  wiki:
+    article-url: ${WIKI_ARTICLE_URL:https://en.wikipedia.org/wiki/List_of_country_calling_codes#Ordered_by_code}
+    country-phone-line-tag: ${WIKI_COUNTRY_PHONE_LINE_TAG:ul li}
+    country-phone-tag: ${WIKI_COUNTRY_PHONE_TAG:a}
+    phone-first-char: ${WIKI_PHONE_FIRST_CHAR:+}
+    phone-diff-separator: ${WIKI_DIFF_PHONES_SEPARATOR:/}
+    phone-any-num-mask: ${WIKI_ANY_NUM_MASK:x}
+    cron-schedule: ${WIKI_UPDATE_CRON:0 * 23 ? * *}
+    allow-update-on-start: false
