@@ -5,6 +5,7 @@ import org.example.config.properties.WikiProperties;
 import org.example.dto.CommonDto;
 import org.example.exception.InvalidInputPhoneFormat;
 import org.example.exception.NoPrefixFound;
+import org.example.exception.WikiParseException;
 import org.example.jpa.entity.CountryPhone;
 import org.example.jpa.repository.CountryPhoneRepository;
 import org.jsoup.Jsoup;
@@ -32,6 +33,9 @@ public class PhoneCheckerService {
     @Value("${app.phone.mask}")
     private String phoneMask;
 
+    @Value("${app.wiki.allow-update-on-start}")
+    private boolean allowUpdateOnStart;
+
     @Transactional(readOnly = true)
     public CommonDto<String> getCountriesByPhoneNumber(String phoneNumber) {
         String formattedPhone = formatPhone(phoneNumber);
@@ -44,7 +48,6 @@ public class PhoneCheckerService {
         return new CommonDto<>(String.join(", ", countries));
     }
 
-    @PostConstruct
     @Transactional
     public void updateDbFromWiki() throws IOException {
         countryPhoneRepository.deleteAll();
@@ -71,6 +74,17 @@ public class PhoneCheckerService {
         });
 
         countryPhoneRepository.saveAll(countryPhones);
+    }
+
+    @PostConstruct
+    private void updateDirectoryOnStart() {
+        if (allowUpdateOnStart) {
+            try {
+                updateDbFromWiki();
+            } catch (IOException e) {
+                throw new WikiParseException(e);
+            }
+        }
     }
 
     private Set<CountryPhone> processDifferentPhonePrefix(Elements as, String phonePrefix) {
