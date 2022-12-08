@@ -1,11 +1,13 @@
 spring:
   jpa:
-    database-platform: org.example.util.SQLDialect
     hibernate:
       ddl-auto: update
+    show-sql: true
   datasource:
-    url: jdbc:sqlite:src/main/resources/sqliteCountryPhone.db
-    driver-class-name: org.sqlite.JDBC
+    url: jdbc:mysql://localhost:3306/country_phone
+    driver-class-name: com.mysql.jdbc.Driver
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
   profiles:
     include: ${SPRING_ACTIVE_PROFILES}, urls
 
