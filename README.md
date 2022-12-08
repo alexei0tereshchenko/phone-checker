@@ -9,7 +9,7 @@
 - Testcontainers
 - MySql
 
-##Installation
+## Installation
 
 Build + tests
 ```sh
@@ -21,11 +21,11 @@ Run
 - In order to provide database url, username and password either add ``-Dspring.boot.run.arguments`` with 
 spring.datasource.url, DATASOURCE_USERNAME, DATASOURCE_PASSWORD or specify correct values at application.yml
 
-##Use
+## Use
 1. Make sure to fulfill the directory using `POST /phone-check/update`,
 quartz: `${app.allow-quartz} + ${WIKI_UPDATE_CRON}` or just default - `${app.wiki.allow-update-on-start}`
 2. To check a phone number: `GET /phone-check` with 'phone' header.
-###Exceptions
+### Exceptions
 - InvalidInputPhoneFormat (input phone number can't be parsed)
 - NoPrefixFound (can't resolve origin country of a phone number)
 - WikiParseException (can't resolve wiki table with phone prefix)
