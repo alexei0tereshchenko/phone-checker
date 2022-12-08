@@ -20,6 +20,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <jsoup.version>1.15.3</jsoup.version>
         <sqlite-jdbc.version>3.40.0.0</sqlite-jdbc.version>
+        <lombok.version>1.18.22</lombok.version>
     </properties>
 
     <dependencies>
@@ -31,6 +32,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+            <version>${lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

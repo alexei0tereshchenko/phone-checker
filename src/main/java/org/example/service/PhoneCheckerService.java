@@ -3,17 +3,24 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.config.properties.WikiProperties;
 import org.example.dto.CommonDto;
+import org.example.exception.InvalidInputPhoneFormat;
+import org.example.exception.NoPrefixFound;
 import org.example.jpa.entity.CountryPhone;
 import org.example.jpa.repository.CountryPhoneRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -22,16 +29,22 @@ public class PhoneCheckerService {
     private final CountryPhoneRepository countryPhoneRepository;
     private final WikiProperties wikiProperties;
 
+    @Value("${app.phone.mask}")
+    private String phoneMask;
+
     @Transactional(readOnly = true)
     public CommonDto<String> getCountriesByPhoneNumber(String phoneNumber) {
         String formattedPhone = formatPhone(phoneNumber);
+        validatePhoneNumber(formattedPhone);
 
-        Set<String> countries = countryPhoneRepository.findCountryByPhone(formattedPhone);
+        List<String> countries = countryPhoneRepository.findCountryByPhone(formattedPhone)
+                .orElseThrow(NoPrefixFound::new);
+
 
         return new CommonDto<>(String.join(", ", countries));
     }
 
-    //@PostConstruct
+    @PostConstruct
     @Transactional
     public void updateDbFromWiki() throws IOException {
         countryPhoneRepository.deleteAll();
@@ -48,7 +61,10 @@ public class PhoneCheckerService {
                     countryPhones.addAll(processDifferentPhonePrefix(as, phonePrefix));
                 } else {
                     CountryPhone countryPhone = new CountryPhone(phonePrefix.replace(" ", "")
-                            .replace(wikiProperties.getPhoneFirstChar(), ""), as.get(1).text());
+                            .replace(wikiProperties.getPhoneAnyNumMask(), "")
+                            .replace(wikiProperties.getPhoneFirstChar(), ""), as.get(1).text().isEmpty()
+                            ? as.get(2).text()
+                            : as.get(1).text());
                     countryPhones.add(countryPhone);
                 }
             }
@@ -82,8 +98,18 @@ public class PhoneCheckerService {
         return as.size() >= 2 && as.get(0).text().startsWith(wikiProperties.getPhoneFirstChar());
     }
 
+
+    private void validatePhoneNumber(String phoneNumber) {
+        Pattern pattern = Pattern.compile(phoneMask);
+        Matcher matcher = pattern.matcher(phoneNumber);
+        if (!matcher.matches()) {
+            throw new InvalidInputPhoneFormat();
+        }
+    }
+
+
     private String formatPhone(String phoneNumber) {
-        return phoneNumber.replace("+", "")
+        return phoneNumber.replace(wikiProperties.getPhoneFirstChar(), "")
                 .replace(" ", "")
                 .replace("(", "")
                 .replace(")", "")
