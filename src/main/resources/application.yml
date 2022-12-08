@@ -1,0 +1,19 @@
+spring:
+  jpa:
+    database-platform: org.example.util.SQLDialect
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:sqlite:src/main/resources/sqliteCountryPhone.db
+    driver-class-name: org.sqlite.JDBC
+  profiles:
+    include: ${SPRING_ACTIVE_PROFILES}, urls
+
+app:
+  wiki:
+    article-url: ${WIKI_ARTICLE_URL:https://en.wikipedia.org/wiki/List_of_country_calling_codes#Ordered_by_code}
+    country-phone-line-tag: ${WIKI_COUNTRY_PHONE_LINE_TAG:ul li}
+    country-phone-tag: ${WIKI_COUNTRY_PHONE_TAG:a}
+    phone-first-char: ${WIKI_PHONE_FIRST_CHAR:+}
+    phone-diff-separator: ${WIKI_DIFF_PHONES_SEPARATOR:/}
+    phone-any-num-mask: ${WIKI_ANY_NUM_MASK:x}
